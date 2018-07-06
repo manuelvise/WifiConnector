@@ -646,8 +646,7 @@ public class WifiConnector {
      * @return boolean value if connection was successfully completed
      */
     private boolean connectToWifiAccesPoint() {
-
-
+        createWifiConnectionBroadcastListener();
         int networkId = wifiManager.addNetwork(wifiConfiguration);
         wifiLog("network id found: " + networkId);
         if (networkId == -1) {
