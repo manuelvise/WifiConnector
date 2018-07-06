@@ -30,7 +30,7 @@ task clean(type: Delete) {
 }
 
 ext {
-    PUBLISH_GROUP_ID = 'com.jflavio1.wificonnector'
+    PUBLISH_GROUP_ID = 'it.manuelvise.wificonnector'
     PUBLISH_ARTIFACT_ID = 'wifi-connector'
     PUBLISH_VERSION = '1.2'
     compileSdkVersion = 25
