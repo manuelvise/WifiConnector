@@ -230,6 +230,7 @@ public class WifiConnector {
                 wifiConfiguration = savedConf;
             }*/
             wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+            wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
         } else {
             wifiConfiguration.preSharedKey = ssidFormat(password);
             wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);

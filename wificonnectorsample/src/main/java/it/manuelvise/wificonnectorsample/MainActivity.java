@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements WifiConnectorMode
         }*/
 
 
-        final WifiConnector wifiConnector = new WifiConnector(this, "KING-NK2-1320", "5e:cf:7f:74:ea:d1", "NONE", "");
+        wifiConnector = new WifiConnector(this, "KING-NK2-1320", "5e:cf:7f:74:ea:d1", "NONE", "");
         wifiConnector.setLog(true);
         wifiConnector.enableWifi();
 
@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements WifiConnectorMode
             }
         });
 
-        adapter = new WifiListRvAdapter(this.wifiConnector, new WifiListRvAdapter.WifiItemListener() {
+        /*adapter = new WifiListRvAdapter(this.wifiConnector, new WifiListRvAdapter.WifiItemListener() {
             @Override
             public void onWifiItemClicked(ScanResult scanResult) {
                 openConnectDialog(scanResult);
@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements WifiConnectorMode
         });
         rv.setAdapter(adapter);
         rv.setLayoutManager(new LinearLayoutManager(this));
-        rv.setHasFixedSize(true);
+        rv.setHasFixedSize(true);*/
 
     }
 
