@@ -74,53 +74,57 @@ public class MainActivity extends AppCompatActivity implements WifiConnectorMode
 
     @Override
     public void createWifiConnectorObject() {
-/*        wifiConnector = new WifiConnector(this);
-        wifiConnector.setLog(true);
-        wifiConnector.registerWifiStateListener(new WifiStateListener() {
-        @Override
-        public void onStateChange(int wifiState) {
-
-        }
-
-        @Override
-        public void onWifiEnabled() {
-            MainActivity.this.onWifiEnabled();
-        }
-
-        @Override
-        public void onWifiEnabling() {
-
-        }
-
-        @Override
-        public void onWifiDisabling() {
-
-        }
-
-        @Override
-        public void onWifiDisabled() {
-            MainActivity.this.onWifiDisabled();
-        }*/
 
 
-        wifiConnector = new WifiConnector(this, "KING-NK2-1320", "5e:cf:7f:74:ea:d1", "NONE", "");
+
+
+//        wifiConnector = new WifiConnector(this, "KING-NK2-1320", "5e:cf:7f:74:ea:d1", "NONE", "");
+        wifiConnector = new WifiConnector(this);
+
         wifiConnector.setLog(true);
         wifiConnector.enableWifi();
 
-        wifiConnector.connectToWifi(new ConnectionResultListener() {
+//        wifiConnector.connectToWifi(new ConnectionResultListener() {
+//            @Override
+//            public void successfulConnect(String SSID) {
+//                Toast.makeText(MainActivity.this,"Connected to "+SSID+"!",Toast.LENGTH_LONG).show();
+//            }
+//
+//            @Override
+//            public void errorConnect(int codeReason) {
+//
+//            }
+//
+//            @Override
+//            public void onStateChange(SupplicantState supplicantState) {
+//
+//            }
+//        });
+
+        wifiConnector.registerWifiStateListener(new WifiStateListener() {
             @Override
-            public void successfulConnect(String SSID) {
-                Toast.makeText(MainActivity.this,"Connected to "+SSID+"!",Toast.LENGTH_LONG).show();
+            public void onStateChange(int wifiState) {
+
             }
 
             @Override
-            public void errorConnect(int codeReason) {
+            public void onWifiEnabled() {
+                MainActivity.this.onWifiEnabled();
+            }
+
+            @Override
+            public void onWifiEnabling() {
 
             }
 
             @Override
-            public void onStateChange(SupplicantState supplicantState) {
+            public void onWifiDisabling() {
 
+            }
+
+            @Override
+            public void onWifiDisabled() {
+                MainActivity.this.onWifiDisabled();
             }
         });
 
@@ -144,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements WifiConnectorMode
             }
         });
 
-        /*adapter = new WifiListRvAdapter(this.wifiConnector, new WifiListRvAdapter.WifiItemListener() {
+        adapter = new WifiListRvAdapter(this.wifiConnector, new WifiListRvAdapter.WifiItemListener() {
             @Override
             public void onWifiItemClicked(ScanResult scanResult) {
                 openConnectDialog(scanResult);
@@ -157,11 +161,11 @@ public class MainActivity extends AppCompatActivity implements WifiConnectorMode
         });
         rv.setAdapter(adapter);
         rv.setLayoutManager(new LinearLayoutManager(this));
-        rv.setHasFixedSize(true);*/
+        rv.setHasFixedSize(true);
 
     }
 
-    private void onWifiEnabled(){
+    public void onWifiEnabled(){
         mWifiActiveTxtView.setText("Disable Wifi");
         if (permisionLocationOn()) {
             scanForWifiNetworks();
@@ -207,13 +211,14 @@ public class MainActivity extends AppCompatActivity implements WifiConnectorMode
     }
 
     @Override
-    public void connectToWifiAccessPoint(final ScanResult scanResult, String password) {
+    public void connectToWifiAccessPoint(final ScanResult scanResult, final String password) {
         this.wifiConnector.setScanResult(scanResult, password);
         this.wifiConnector.setLog(true);
         this.wifiConnector.connectToWifi(new ConnectionResultListener() {
             @Override
             public void successfulConnect(String SSID) {
-                Toast.makeText(MainActivity.this, "You are connected to " + scanResult.SSID + "!!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "You are connected to " + SSID + "!!", Toast.LENGTH_SHORT).show();
+
             }
 
             @Override

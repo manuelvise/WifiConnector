@@ -1,5 +1,6 @@
 package it.manuelvise.wificonnector;
 
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,12 +10,15 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.NetworkRequest;
+import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 
 import it.manuelvise.wificonnector.interfaces.ConnectionResultListener;
@@ -43,7 +47,8 @@ import java.util.List;
  * @since version 1.4 if you want to turn-on wifi <strong>you must call {@link #enableWifi()} method after
  * creating WifiConnector object.</strong>
  */
-public class WifiConnector {
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+public class WifiConnector extends ConnectivityManager.NetworkCallback {
 
     /**
      * Tag for log
@@ -657,18 +662,6 @@ public class WifiConnector {
         return enableNetwork(networkId);
     }
 
-    private boolean connectToWifiAccesPoint(Context context,WifiManager wifiManager,WifiConfiguration wifiConfiguration) {
-        //int networkId = getNetworkId(wifiManager,wifiConfiguration.SSID);
-        createWifiConnectionBroadcastListener();
-
-        int networkId =  wifiManager.addNetwork(wifiConfiguration);
-        if (networkId == -1) {
-            networkId = getNetworkId(wifiConfiguration.SSID);
-        }
-        return enableNetwork(networkId);
-    }
-
-
     /**
      * Search network id by given SSID.
      * If network is totally new, it returns -1.
@@ -698,37 +691,84 @@ public class WifiConnector {
         return connectWifiManager(networkId);
     }
 
-    private boolean connectWifiManager(int networkId) {
-
-        WifiInfo info = wifiManager.getConnectionInfo(); //get WifiInfo
-        int id = info.getNetworkId();
-        wifiManager.disconnect();
-        //wifiManager.disableNetwork(id); //disable current network
-        disableOtherNetwork();
-        boolean enable =  wifiManager.enableNetwork(networkId, true);
-        wifiManager.reconnect();
-        return enable;
-
-    }
-
-    private boolean enableNetwork(Context context,WifiManager wifiManager,int networkId) {
-        if (networkId == -1) {
-            return false;
+    void inspectNetworks() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            Network[] ns = connectivity.getAllNetworks();
+            for (Network n : ns) {
+                NetworkCapabilities c = connectivity.getNetworkCapabilities(n);
+                Log.i(TAG, "inspectNetworks: network="+n+" capabilities="+c); // <- breakpoint
+            }
         }
-        return connectWifiManager(context, wifiManager,networkId);
     }
 
-    private boolean connectWifiManager(Context context, WifiManager wifiManager, int networkId) {
+    private boolean connectWifiManager(final int networkId) {
+
         WifiInfo info = wifiManager.getConnectionInfo(); //get WifiInfo
         int id = info.getNetworkId();
         wifiManager.disconnect();
         //wifiManager.disableNetwork(id); //disable current network
-        disableOtherNetwork();
+//        disableOtherNetwork();
+//
+//        NetworkRequest.Builder builder = null;
+//        boolean enable = true;
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+//
+//
+//            builder = new NetworkRequest.Builder();
+//            //set the transport type do WIFI
+//            builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI);
+//            final ConnectivityManager connectivityManager = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+//
+//            connectivityManager.requestNetwork(builder.addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build(), new ConnectivityManager.NetworkCallback() {
+//                @Override
+//                public void onAvailable(Network network) {
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                        if (Build.VERSION.RELEASE.equalsIgnoreCase("6.0")) {
+//                            if (!Settings.System.canWrite(context)) {
+//                                Intent goToSettings = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+//                                goToSettings.setData(Uri.parse("package:" + context.getPackageName()));
+//                                context.startActivity(goToSettings);
+//                            }
+//                        }
+//
+//                        connectivityManager.bindProcessToNetwork(network);
+//
+//                    } else {
+//
+//                        ConnectivityManager.setProcessDefaultNetwork(network);
+//
+//                    }
+//                    try {
+//                        //do a callback or something else to alert your code that it's ok to send the message through socket now
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                    connectivityManager.unregisterNetworkCallback(this);
+//                }
+//            });
+//
+//
+//        }else{
+//            enable =  wifiManager.enableNetwork(networkId, true);
+//        }
+
         boolean enable =  wifiManager.enableNetwork(networkId, true);
-        wifiManager.reconnect();
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                wifiManager.reconnect();
+            }
+        }, 1000);
+
         return enable;
-        //return wifiManager.reconnect();
+
+
+
+
     }
+
 
 
     private void disableOtherNetwork(){
